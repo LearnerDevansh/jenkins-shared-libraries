@@ -10,7 +10,7 @@ def call(Map config = [:]) {
     def gitUserName = config.gitUserName ?: 'Jenkins CI'
     def gitUserEmail = config.gitUserEmail ?: 'jenkins@example.com'
     def gitBranch = config.gitBranch ?: 'master'
-    def gitRepoUrl = 'https://github.com/LearnerDevansh/tws-e-commerce-app_hackathon.git'
+    def gitRepoUrl = 'github.com/LearnerDevansh/tws-e-commerce-app_hackathon.git'
 
     echo "🔧 Updating Kubernetes manifests with image tag: ${imageTag}"
 
