@@ -6,10 +6,11 @@
 def call(Map config = [:]) {
     def imageTag = config.imageTag ?: error("Image tag is required")
     def manifestsPath = config.manifestsPath ?: 'kubernetes'
-    def gitCredentials = config.gitCredentials ?: 'github-credentials'
+    def gitCredentials = config.gitCredentials ?: 'github-creds'
     def gitUserName = config.gitUserName ?: 'Jenkins CI'
     def gitUserEmail = config.gitUserEmail ?: 'jenkins@example.com'
     def gitBranch = config.gitBranch ?: 'master'
+
 
     echo "🔧 Updating Kubernetes manifests with image tag: ${imageTag}"
 
@@ -43,12 +44,12 @@ def call(Map config = [:]) {
 
             # Add and commit changes (only if there are any)
             if git diff --quiet; then
-                echo "✅ No changes detected in Kubernetes manifests."
+                echo "No changes detected in Kubernetes manifests."
             else
                 git add ${manifestsPath}/*.yaml
                 git commit -m "Update image tags to ${imageTag} and ensure correct domain [ci skip]" || echo "Nothing to commit"
 
-                echo "🚀 Pushing changes to GitHub branch: ${gitBranch}"
+                echo "Pushing changes to GitHub branch: ${gitBranch}"
                 git push origin HEAD:${gitBranch}
             fi
         '''
