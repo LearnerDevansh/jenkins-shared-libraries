@@ -10,7 +10,7 @@ def call(Map config = [:]) {
     def gitUserName = config.gitUserName ?: 'Jenkins CI'
     def gitUserEmail = config.gitUserEmail ?: 'jenkins@example.com'
     def gitBranch = config.gitBranch ?: 'master'
-    def gitRepoUrl = config.gitRepoUrl ?: error("gitRepoUrl is required, e.g., https://github.com/username/repo.git")
+    def gitRepoUrl = 'https://github.com/LearnerDevansh/tws-e-commerce-app_hackathon.git'
 
     echo "🔧 Updating Kubernetes manifests with image tag: ${imageTag}"
 
