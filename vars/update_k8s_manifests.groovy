@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 /**
- * Securely updates Kubernetes manifests with new image tags and pushes changes to GitHub.
+ * Securely updates Kubernetes manifests with new image tags and pushes changes to GitHub using a PAT.
  */
 def call(Map config = [:]) {
     def imageTag = config.imageTag ?: error("Image tag is required")
@@ -10,13 +10,14 @@ def call(Map config = [:]) {
     def gitUserName = config.gitUserName ?: 'Jenkins CI'
     def gitUserEmail = config.gitUserEmail ?: 'jenkins@example.com'
     def gitBranch = config.gitBranch ?: 'master'
+    def gitRepoUrl = config.gitRepoUrl ?: error("gitRepoUrl is required, e.g., https://github.com/username/repo.git")
 
-    echo "Updating Kubernetes manifests with image tag: ${imageTag}"
+    echo "🔧 Updating Kubernetes manifests with image tag: ${imageTag}"
 
     withCredentials([usernamePassword(
         credentialsId: gitCredentials,
         usernameVariable: 'GIT_USERNAME',
-        passwordVariable: 'GIT_PASSWORD'
+        passwordVariable: 'GIT_TOKEN'   // Use PAT here
     )]) {
 
         sh """
@@ -28,7 +29,7 @@ def call(Map config = [:]) {
             git config user.name "${gitUserName}"
             git config user.email "${gitUserEmail}"
 
-            # Ensure the manifests path exists
+            # Ensure manifests path exists
             if [ ! -d "${manifestsPath}" ]; then
                 echo "Error: manifestsPath '${manifestsPath}' does not exist!"
                 exit 1
@@ -55,11 +56,10 @@ def call(Map config = [:]) {
                 echo "Warning: ${manifestsPath}/10-ingress.yaml not found"
             fi
 
-            # Setup temporary Git credentials
-            git config credential.helper store
-            printf "https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com\\n" > ~/.git-credentials
-
-            # Commit changes if there are any
+            # Configure temporary Git credentials using PAT
+            git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@${gitRepoUrl.replace('https://','')}
+            
+            # Add and commit changes if any
             git add ${manifestsPath}/*.yaml || true
             if git diff --cached --quiet; then
                 echo "No changes detected in Kubernetes manifests."
